@@ -10,6 +10,8 @@ __pycache__/
 bin/
 lib/
 include/
+etc/
+share/
 
 # Distribution / packaging
 .Python
