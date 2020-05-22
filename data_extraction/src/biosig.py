@@ -763,7 +763,6 @@ def sopen(FileName, MODE = 'r', HDR = HDR_TYPE()):
 							HDR.EVENT.N = numpy.fromstring(HDR.FILE.FID.read(4), uint32).tolist()[0]
 						else:
 							ne = numpy.fromstring(HDR.FILE.FID.read(3), uint8)*[1,256,65536]
-							print(ne)
 							HDR.EVENT.N = numpy.sum(ne)
 							HDR.EVENT.SampleRate = numpy.fromstring(HDR.FILE.FID.read(4), float32).tolist()[0]
 

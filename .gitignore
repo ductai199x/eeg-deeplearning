@@ -13,6 +13,8 @@ include/
 etc/
 share/
 
+*.bz2
+
 # Distribution / packaging
 .Python
 build/
