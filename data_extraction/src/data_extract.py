@@ -34,11 +34,11 @@ event_map = {
 def read_data(f_name):
     t1 = time.time()
     HDR = biosig.sopen(f_name, 'r')
-    print("Read header of %s in %f s\n" % (f_name, time.time()-t1))
+    # print("Read header of %s in %f s\n" % (f_name, time.time()-t1))
 
     t1 = time.time()
     data = biosig.sread(HDR, HDR.NRec, 0)
-    print("Read data of %s in %f s\n" % (f_name, time.time()-t1))
+    # print("Read data of %s in %f s\n" % (f_name, time.time()-t1))
 
     biosig.sclose(HDR)
 
@@ -68,7 +68,7 @@ def segregate_data_into_classes(HDR, data):
                 signal_processing(data[start_frame:end_frame+1, 0:64]))
             event_hit = 0
 
-    print("Finished segregating data into classes in %f s\n" % (time.time()-t1))
+    # print("Finished segregating data into classes in %f s\n" % (time.time()-t1))
 
     return seqs_v_class_map
 
@@ -88,5 +88,5 @@ def compress_segregated_data(data, f_name):
     with bz2.open(f_name, "wb") as f:
         f.write(compressed_data)
 
-    print("Finished writing %.2f MB of data to file in %f s\n" %
-          (f_size, time.time()-t1))
+    # print("Finished writing %.2f MB of data to %s in %f s\n" %
+    #       (f_size, f_name, time.time()-t1))

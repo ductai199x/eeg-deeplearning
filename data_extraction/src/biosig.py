@@ -373,30 +373,31 @@ class AS_TYPE:
 	Header1 = ''
 	rawdata = numpy.array([])	# raw data block 
 
-class HDR_TYPE:
-	TYPE = ''	# type of file format
-	VERSION = 0	# GDF version number 
-	FileName = ''
+class HDR_TYPE(object):
+	def __init__(self):
+		self.TYPE = ''	# type of file format
+		self.VERSION = 0	# GDF version number 
+		self.FileName = ''
 
-	HeadLen = 0	# length of header in bytes
-	NS = 0		# number of channels
-	SPR = 0		# samples per block (when different sampling rates are used, this is the LCM(CHANNEL[..].SPR)
-	NRec = -1	# number of records/blocks -1 indicates length is unknown.	
-	Dur = ''	# Duration of each block in seconds expressed in the fraction Dur[0]/Dur[1]
-	SampleRate = 0	# Sampling rate
-	IPaddr = ''	# IP address of recording device (if applicable)	
-	T0 = ''		# starttime of recording
-	
-	data = DATA_TYPE()
-	Patient = PATIENT_TYPE()
-	ID = ID_TYPE()
-	LOC = LOC_TYPE()
-	ELEC = ELEC_TYPE()
-	EVENT = EVENT_TYPE()
-	FLAG = FLAG_TYPE()
-	FILE = FILE_TYPE()
-	AS = AS_TYPE()
-	CHANNEL = []
+		self.HeadLen = 0	# length of header in bytes
+		self.NS = 0		# number of channels
+		self.SPR = 0		# samples per block (when different sampling rates are used, this is the LCM(CHANNEL[..].SPR)
+		self.NRec = -1	# number of records/blocks -1 indicates length is unknown.	
+		self.Dur = ''	# Duration of each block in seconds expressed in the fraction Dur[0]/Dur[1]
+		self.SampleRate = 0	# Sampling rate
+		self.IPaddr = ''	# IP address of recording device (if applicable)	
+		self.T0 = ''		# starttime of recording
+		
+		self.data = DATA_TYPE()
+		self.Patient = PATIENT_TYPE()
+		self.ID = ID_TYPE()
+		self.LOC = LOC_TYPE()
+		self.ELEC = ELEC_TYPE()
+		self.EVENT = EVENT_TYPE()
+		self.FLAG = FLAG_TYPE()
+		self.FILE = FILE_TYPE()
+		self.AS = AS_TYPE()
+		self.CHANNEL = []
 
 ###########################
 # FUNCTION IMPLEMENTATION #
@@ -530,7 +531,7 @@ def sopen(FileName, MODE = 'r', HDR = HDR_TYPE()):
 				HDR.FILE.FID.seek(HDR.HeadLen)
 				HDR.FILE.POS = 0
 				HDR.SampleRate = float(HDR.SPR) * HDR.Dur[1] / HDR.Dur[0]
-				print('Finished reading header')
+				# print('Finished reading header')
 				return HDR
 			
 			# GDF
@@ -624,7 +625,7 @@ def sopen(FileName, MODE = 'r', HDR = HDR_TYPE()):
 					HDR.SampleRate = float(HDR.SPR) * HDR.Dur[1] / HDR.Dur[0]
 					if HDR.EVENT.SampleRate == 0:
 						HDR.EVENT.SampleRate = HDR.SampleRate
-					print('Finished reading header')
+					# print('Finished reading header')
 					return HDR
 				
 				# GDF 2.0
@@ -783,7 +784,7 @@ def sopen(FileName, MODE = 'r', HDR = HDR_TYPE()):
 					HDR.SampleRate = float(HDR.SPR) * HDR.Dur[1] / HDR.Dur[0]
 					if HDR.EVENT.SampleRate == 0:
 						HDR.EVENT.SampleRate = HDR.SampleRate
-					print('Finished reading header')
+					# print('Finished reading header')
 					return HDR
 			
 			# other File Formats
@@ -933,7 +934,7 @@ def sread(HDR, length = -1, start = 0):
 		HDR.data.size = HDR.data.block.shape
 		HDR.FILE.POS = HDR.FILE.POS + length
 	
-		print('Finished reading data')
+		# print('Finished reading data')
 	return HDR.data.block
 	# End of SREAD
 	
