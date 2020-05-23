@@ -5,7 +5,7 @@ from scipy.stats import kurtosis
 
 
 
-def rejectArtifact(seqs_v_class_map, rejChan, copyLib = False, disp = False):
+def rejectChannels(seqs_v_class_map, rejChan, copyLib = False, disp = False):
     # copy the library or write over the old library
     if copyLib:
         seqs_v_class_map_no_artifact = copy.deepcopy(seqs_v_class_map)
@@ -23,6 +23,28 @@ def rejectArtifact(seqs_v_class_map, rejChan, copyLib = False, disp = False):
         seqs_v_class_map_no_artifact[currClas][currTrial][:,currChan] = 0
         if disp:
             display((currClas,currTrial,currChan))
+        
+    return seqs_v_class_map_no_artifact
+
+
+
+def rejectTrials(seqs_v_class_map, rejTrial, copyLib = False, disp = False):
+    # copy the library or write over the old library
+    if copyLib:
+        seqs_v_class_map_no_artifact = copy.deepcopy(seqs_v_class_map)
+    else:
+        seqs_v_class_map_no_artifact = seqs_v_class_map
+    
+    if disp:
+        display("Rejected trials (class,trial):")
+        
+    # reject the previously marked epoch channels by setting the channel to 0
+    for r in range(0, np.shape(rejTrial)[0]):
+        currClas = rejTrial[r,0]
+        currTrial = rejTrial[r,1]
+        seqs_v_class_map_no_artifact[currClas][currTrial][:,:] = 0
+        if disp:
+            display((currClas,currTrial))
         
     return seqs_v_class_map_no_artifact
 
@@ -224,7 +246,7 @@ def data_1D_to_2D(seqs_v_class_map, nX = 10, nY = 11, maps = [(0,0)]):
                 data_2D = np.zeros([nX, nY])
                 
                 # convert from 1D channels to the 2D mesh
-                for chan in range(0,nChannel):
+                for chan in range(0,np.shape(maps)[0]):
                     data_2D[maps[chan][0]][maps[chan][1]] = data[chan]
                 
                 # populate the trial with the 2D mesh
