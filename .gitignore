@@ -14,6 +14,7 @@ etc/
 share/
 
 *.bz2
+*.pickle
 
 # Distribution / packaging
 .Python

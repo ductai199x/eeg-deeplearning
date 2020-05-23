@@ -753,8 +753,10 @@ def sopen(FileName, MODE = 'r', HDR = HDR_TYPE()):
 					etp = HDR.HeadLen + HDR.NRec*HDR.AS.bpb
 					HDR.FILE.FID.seek(etp)
 					etmode = HDR.FILE.FID.read(1)
-					if etmode != '':
-						etmode = numpy.fromstring(etmode, uint8).tolist()[0]
+					etmode = numpy.fromstring(etmode, uint8)
+
+					if len(etmode) > 0:
+						etmode = etmode[0]
 						
 						if HDR.VERSION < 1.94:
 							sr = numpy.fromstring(HDR.FILE.FID.read(3), uint8)
