@@ -31,8 +31,11 @@ def generate_batch(db, perm, batch_size=4, shuffle=False):
         output_idx = output_idx.astype('int')
         labels = labels.astype('int')
 
+        if len(labels) < 1 or len(output_idx) < 1:
+            break
+
         for i in range(len(labels)):
             output_seq.append(db[labels[i]][output_idx[i]])
 
-        yield output_seq, labels
+        yield np.array(output_seq), labels
         idx += batch_size
