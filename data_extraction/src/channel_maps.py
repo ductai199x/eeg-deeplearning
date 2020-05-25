@@ -1,4 +1,4 @@
-
+import numpy as np
 
 channel_label_map = {
     1: "F3", 2: "F1", 3: "Fz", 4: "F2",
@@ -19,15 +19,21 @@ channel_label_map = {
     61: "PPO2h", 62: "EOG left", 63: "EOG middle", 64: "EOG right",
 }
 
-channel_loc_map = [
-    [00, 00, 00, 00,  1,  2,  3,  4,  5, 00, 00],
-    [00, 00, 00,  6,  7,  8,  9, 10, 11, 00, 00],
-    [00, 00, 12, 13, 14, 15, 16, 17, 18, 00, 00],
-    [00, 19, 20, 21, 22, 23, 24, 25, 26, 00, 00],
-    [00, 00, 27, 28, 29, 30, 31, 32, 33, 00, 00],
-    [00, 34, 35, 36, 37, 38, 39, 40, 41, 00, 00],
-    [00, 00, 42, 43, 44, 45, 46, 47, 48, 00, 00],
-    [00, 00, 00, 49, 50, 51, 52, 53, 54, 00, 00],
-    [00, 00, 00, 00, 55, 56, 57, 58, 59, 00, 00],
-    [00, 00, 00, 00, 00, 60, 61, 00, 00, 00, 00]
-]
+def channel_loc_map():
+    # empirically determined pattern
+    startNdx = [0,0,0,0,1,1,2,3,4,6];
+    endNdx   = [4,5,6,7,7,8,8,8,8,7];
+
+    # initialize an empty map
+    maps = np.zeros((61,2),dtype=int)
+    k = 0
+    # fill that map with the row and column positions of each electrode
+    for i in range(0, np.size(startNdx)):
+        tmpCol = np.arange(startNdx[i], endNdx[i]+1, 1).tolist()
+        tmpRow = np.arange(endNdx[i], startNdx[i]-1, -1).tolist()
+
+        for j in range(0,np.size(tmpRow)):
+            maps[k][:] = [tmpRow[j], tmpCol[j]]
+            k = k + 1
+    
+    return maps
