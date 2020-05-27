@@ -1,53 +1,78 @@
 import numpy as np
-import numpy as np
 import copy
 from scipy.stats import kurtosis
 
 
-
-def rejectChannels(seqs_v_class_map, rejChan, copyLib = False, disp = False):
+def rejectChannels(seqs_v_class_map, rejChan, copyLib = False):
     # copy the library or write over the old library
     if copyLib:
         seqs_v_class_map_no_artifact = copy.deepcopy(seqs_v_class_map)
     else:
         seqs_v_class_map_no_artifact = seqs_v_class_map
-    
-    if disp:
-        display("Rejected channels (class,trial,channel):")
         
     # reject the previously marked epoch channels by setting the channel to 0
     for r in range(0, np.shape(rejChan)[0]):
         currClas = rejChan[r,0]
         currTrial = rejChan[r,1]
         currChan = rejChan[r,2]
-        seqs_v_class_map_no_artifact[currClas][currTrial][:,currChan] = 0
-        if disp:
-            display((currClas,currTrial,currChan))
+        # seqs_v_class_map_no_artifact[currClas][currTrial][:,currChan] = 0
         
     return seqs_v_class_map_no_artifact
 
 
+def remove_np_arr_from_list(array, arrays):
+    """
+    Remove the `array` from the `list` of `arrays`
+    Operates inplace on the `list` of `arrays` given
 
-def rejectTrials(seqs_v_class_map, rejTrial, copyLib = False, disp = False):
+    :param array: `np.ndarray`
+    :param arrays: `list:np.ndarray`
+    :return: None
+    """
+
+    assert isinstance(arrays, list), f'Expected a list, got {type(arrays)} instead'
+    assert isinstance(array, np.ndarray), f'Expected a numpy.ndarray, got {type(array)} instead'
+    for a in arrays:
+        assert isinstance(a, np.ndarray), f'Expected a numpy.ndarray instances in arrays, found {type(a)} instead'
+
+    # Numpy ndarrays are not hashable by default, so we create
+    # our own hashing algorithm. The following will do the job ...
+    def _hash(a):
+        return hash(a.tobytes())
+
+    try:
+        # We create a list of hashes and search for the index
+        # of the hash of the array we want to remove.
+        index = [_hash(a) for a in arrays].index(_hash(array))
+    except ValueError as e:
+        # It might be, that the array is not in the list at all.
+        print(f'Array not in list. Leaving input unchanged.')
+    else:
+        # Only in the case of no exception we pop the array
+        # with the same index/position from the original
+        # arrays list
+        arrays.pop(index)
+
+
+def rejectTrials(seqs_v_class_map, rejTrial, copyLib = False):
     # copy the library or write over the old library
+    seqs_v_class_map_no_artifact = None
     if copyLib:
         seqs_v_class_map_no_artifact = copy.deepcopy(seqs_v_class_map)
     else:
         seqs_v_class_map_no_artifact = seqs_v_class_map
-    
-    if disp:
-        display("Rejected trials (class,trial):")
-        
+
     # reject the previously marked epoch channels by setting the channel to 0
+
+    list_reject_trials = {1:[], 2:[], 3:[], 4:[], 5:[], 6:[], 7:[]}
+
     for r in range(0, np.shape(rejTrial)[0]):
         currClas = rejTrial[r,0]
         currTrial = rejTrial[r,1]
+
         seqs_v_class_map_no_artifact[currClas][currTrial][:,:] = 0
-        if disp:
-            display((currClas,currTrial))
         
     return seqs_v_class_map_no_artifact
-
 
 
 def markArtifactJointProb(seqs_v_class_map, nBins = 20, threshold = 5):

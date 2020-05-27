@@ -16,7 +16,7 @@ channel_label_map = {
     49: "CPP5h", 50: "CPP3h", 51: "CPP1h", 52: "CPP2h",
     53: "CPP4h", 54: "CPP6h", 55: "P3", 56: "P1",
     57: "Pz", 58: "P2", 59: "P4", 60: "PPO1h",
-    61: "PPO2h", 62: "EOG left", 63: "EOG middle", 64: "EOG right",
+    61: "PPO2h", 62: "EOG left", 63: "EOG middle", 64: "EOG right"
 }
 
 def channel_loc_map():

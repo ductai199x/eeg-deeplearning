@@ -1,7 +1,9 @@
-import numpy
+import numpy as np
 from scipy import signal
 import biosig
 from biosig import HDR_TYPE
+from data_preprocess import *
+
 import time
 import pickle
 import bz2
@@ -75,9 +77,27 @@ def segregate_data_into_classes(HDR, data):
     return seqs_v_class_map
 
 
-def signal_processing(data):
-    downsampled = signal.decimate(data, 2, 30, axis=0)
+from scipy.signal import butter, lfilter
 
+def butter_bandpass(lowcut, highcut, fs, order=5):
+    nyq = 0.5 * fs
+    low = lowcut / nyq
+    high = highcut / nyq
+    b, a = butter(order, [low, high], btype='band')
+    return b, a
+
+
+def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
+    b, a = butter_bandpass(lowcut, highcut, fs, order=order)
+    y = lfilter(b, a, data)
+    return y
+
+
+
+def signal_processing(data):
+    bandpass = butter_bandpass_filter(data, 0.3, 100, 512, 10)
+    downsampled = signal.decimate(bandpass, 2, 30, axis=0)
+    
     return downsampled
 
 
@@ -89,10 +109,43 @@ def compress_segregated_data(data, f_name):
     f_size = sys.getsizeof(i_str)/1048576
     f.write(i_str)
     f.close()
-    # compressed_data = bz2.compress(i_str)
-    
-    # with bz2.open(f_name, "wb") as f:
-    #     f.write(compressed_data)
 
-    # print("Finished writing %.2f MB of data to %s in %f s\n" %
-    #       (f_size, f_name, time.time()-t1))
+
+def reject_trials_from_map(seqs_v_class_map):
+    # set parameters
+    nBins = 20
+    threshold = 5        # in standard deviation
+    thresholdSig = 200   # in uV
+    copyLib = True
+    EOG_Chann = [61,62,63]
+
+    # rejects based on joint probability
+    rejChanProb = markArtifactJointProb(seqs_v_class_map, nBins, threshold)
+
+    # reject based on kurtosis
+    rejChanKurt = markArtifactKurtosis(seqs_v_class_map, threshold)
+
+    # reject based on eeg signal value
+    rejChanThresh = markArtifactSigVal(seqs_v_class_map, thresholdSig)
+
+    # concatenate the index of the rejected channels
+    rejChan = np.zeros((1,3),dtype=int)
+    rejChan = np.concatenate((rejChan, rejChanProb), axis=0) if np.size(rejChanProb)>1 else rejChan
+    rejChan = np.concatenate((rejChan, rejChanKurt), axis=0) if np.size(rejChanKurt)>1 else rejChan
+    rejChan = np.concatenate((rejChan, rejChanThresh), axis=0) if np.size(rejChanThresh)>1 else rejChan
+    rejChan = np.delete(rejChan, (0), axis=0)
+
+    # get the trials that should be rejected because the EOG detected eye movement
+    rejTrial = np.zeros((1,3),dtype=int)
+    c = []
+    for i in range(0, np.shape(rejChan)[0]):
+        if rejChan[i,2] in EOG_Chann:
+            rejTrial = np.append(rejTrial, [rejChan[i,:]], axis=0)
+
+    rejTrial = np.delete(rejTrial, (0), axis=0)
+
+    # set the rejected channels to 0
+    # seqs_v_class_map_noArtifact = rejectChannels(seqs_v_class_map, rejChan, copyLib)
+
+    # reject entire trials by setting all values to 0 when the EOG of that trial is rejected as an artifact
+    return rejectTrials(seqs_v_class_map, rejChan, copyLib)
