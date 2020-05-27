@@ -95,8 +95,8 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
 
 
 def signal_processing(data):
-    bandpass = butter_bandpass_filter(data, 0.3, 100, 512, 10)
-    downsampled = signal.decimate(bandpass, 2, 30, axis=0)
+    downsampled = signal.decimate(data, 2, 30, axis=0)
+    bandpass = butter_bandpass_filter(downsampled, 0.3, 100, 512, 10)
     
     return downsampled
 
