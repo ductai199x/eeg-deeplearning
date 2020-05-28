@@ -95,17 +95,21 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
 
 
 def signal_processing(data):
-    downsampled = signal.decimate(data, 2, 30, axis=0)
-    bandpass = butter_bandpass_filter(downsampled, 0.3, 100, 512, 10)
+    data = signal.decimate(data, 2, 5, axis=0)
+    # data = butter_bandpass_filter(data, 30, 100, 256, 10)
     
-    return downsampled
+    data = (data-np.min(data, axis=0))/(np.max(data, axis=0) - np.min(data, axis=0))
+
+    return data
 
 
 # compress segregated data into zip file
-def compress_segregated_data(data, f_name):
+def pickle_data(data, f_name, is_compress=False):
     t1 = time.time()
     f = open(f_name, "wb")
     i_str = pickle.dumps(data)
+    if is_compress:
+        i_str = bz2.compress(i_str)
     f_size = sys.getsizeof(i_str)/1048576
     f.write(i_str)
     f.close()
@@ -119,14 +123,31 @@ def reject_trials_from_map(seqs_v_class_map):
     copyLib = True
     EOG_Chann = [61,62,63]
 
+    rejChanProb = np.array([[]])
+    rejChanKurt = np.array([[]])
+    rejChanThresh = np.array([[]])
+
+    # TODO: There is some bug here when doing
+    # counts, bin_edges = np.histogram(sigTmp,nBins,(sigTmp.min()-1, sigTmp.max()+1))
+    # in data_preprocess.py module
+    # ValueError: supplied range of [nan, nan] is not finite
     # rejects based on joint probability
-    rejChanProb = markArtifactJointProb(seqs_v_class_map, nBins, threshold)
+    try:
+        rejChanProb = markArtifactJointProb(seqs_v_class_map, nBins, threshold)
+    except:
+        print("Not successful in mark artifact joint prob")
 
     # reject based on kurtosis
-    rejChanKurt = markArtifactKurtosis(seqs_v_class_map, threshold)
+    try:
+        rejChanKurt = markArtifactKurtosis(seqs_v_class_map, threshold)
+    except:
+        print("Not successful in mark artifact kurtosis")
 
     # reject based on eeg signal value
-    rejChanThresh = markArtifactSigVal(seqs_v_class_map, thresholdSig)
+    try:
+        rejChanThresh = markArtifactSigVal(seqs_v_class_map, thresholdSig)
+    except:
+        print("Not successful in mark artifact kurtosis")
 
     # concatenate the index of the rejected channels
     rejChan = np.zeros((1,3),dtype=int)
@@ -148,4 +169,4 @@ def reject_trials_from_map(seqs_v_class_map):
     # seqs_v_class_map_noArtifact = rejectChannels(seqs_v_class_map, rejChan, copyLib)
 
     # reject entire trials by setting all values to 0 when the EOG of that trial is rejected as an artifact
-    return rejectTrials(seqs_v_class_map, rejChan, copyLib)
+    return rejTrial

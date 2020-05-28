@@ -11,14 +11,19 @@ def create_rand_seq_permutations(db):
     return seq_idx
 
 
-def generate_batch(db, perm, batch_size=4, shuffle=False):
+def generate_batch(db, perm, batch_size=4, shuffle=False, classes=None):
     idx = 0
+
+    if classes is None:
+        classes = perm.keys()
 
     while True:
         output_seq = []
         output_idx = np.array([])
         labels = np.array([])
-        for key in perm.keys():
+
+
+        for key in classes:
             output_idx = np.concatenate(
                 [output_idx, perm[key][idx:idx+batch_size]])
             labels = np.concatenate(
