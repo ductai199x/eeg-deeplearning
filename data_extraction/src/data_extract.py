@@ -42,10 +42,12 @@ def process_file(fname, onlyME=True):
 
     seq_v_class_fname = processed_file_dir + "/" + trial_name + ".pickle"
     reject_trials_fname = processed_file_dir + "/" + trial_name + "_reject_trials.pickle"
+    noneeg_seqs_v_class_fname = processed_file_dir + "/" + trial_name + "_noneeg.pickle"
 
     t1 = time.time()
     HDR, data = read_data(fname)
     seqs_v_class_map = segregate_data_into_classes(HDR, data)
+    noneeg_seqs_v_class_map = segregate_noneeg_data_into_classes(HDR, data)
     rejected_trials = reject_trials_from_map(seqs_v_class_map)
 
     rejected_trials_map = {}
@@ -59,6 +61,7 @@ def process_file(fname, onlyME=True):
     # seqs_v_class_map = data_1D_to_2D(seqs_v_class_map, 9, 9, CLM)
     pickle_data(seqs_v_class_map, seq_v_class_fname)
     pickle_data(rejected_trials_map, reject_trials_fname)
+    pickle_data(noneeg_seqs_v_class_map, noneeg_seqs_v_class_fname)
     print("Worker %d is done processing file in %f s\n" %
           (os.getpid(), time.time() - t1))
 

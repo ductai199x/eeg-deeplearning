@@ -77,6 +77,34 @@ def segregate_data_into_classes(HDR, data):
     return seqs_v_class_map
 
 
+def segregate_noneeg_data_into_classes(HDR, data):
+    t1 = time.time()
+
+    seqs_v_class_map = {}
+
+    for key in event_map:
+        seqs_v_class_map[event_map[key]] = []
+
+    event_hit = 0
+    start_frame = 0
+    end_frame = 0
+    for i in range(len(HDR.EVENT.TYP)):
+        code = HDR.EVENT.TYP[i]
+        if event_hit == 0 and code in event_map:
+            event_hit = code
+            start_frame = HDR.EVENT.POS[i]
+
+        if code == event_hit + 32768:
+            end_frame = HDR.EVENT.POS[i]
+            seqs_v_class_map[event_map[event_hit]].append(
+                signal_processing(data[start_frame:end_frame+1, 64:]))
+            event_hit = 0
+
+    # print("Finished segregating data into classes in %f s\n" % (time.time()-t1))
+
+    return seqs_v_class_map
+
+
 from scipy.signal import butter, lfilter
 
 def butter_bandpass(lowcut, highcut, fs, order=5):
@@ -95,10 +123,10 @@ def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
 
 
 def signal_processing(data):
-    data = signal.decimate(data, 2, 5, axis=0)
+    data = signal.decimate(data, 4, 5, axis=0)
     # data = butter_bandpass_filter(data, 30, 100, 256, 10)
     
-    data = (data-np.min(data, axis=0))/(np.max(data, axis=0) - np.min(data, axis=0))
+    # data = (data-np.min(data, axis=0))/(np.max(data, axis=0) - np.min(data, axis=0))
 
     return data
 
