@@ -14,7 +14,7 @@ def alignTrials(ME_db_norm, onsetAll, fs=128):
     nTrials = np.shape(ME_db_norm[1])[0]
     nTime = fs*2+1
     nChan = np.shape(ME_db_norm[1])[2]
-    display([nPtInit, nClass, nTrials, nTime, nChan])
+    print([nPtInit, nClass, nTrials, nTime, nChan])
 
     ME_kin_db_New = {}
     for key in range(1,8):
@@ -61,7 +61,7 @@ def detectOnset(seqs_v_class_map, onsetAll, classes=1, channels=[86], baselineEn
             plt.legend()
     return onsetAll
 
-def detectOnsetPCA(seqs_v_class_map, onsetAll, classes=5, channels=[66], baselineEnd=32, threshV=1, threshdV=0.05, filt=17, plot=False):
+def detectOnsetPCA(seqs_v_class_map, onsetAll, classes, channels=[66], baselineEnd=32, threshV=1, threshdV=0.05, filt=17, plot=False):
     nTrials = np.shape(seqs_v_class_map[classes])[0]
     nChan = np.size(channels)
     
@@ -73,7 +73,7 @@ def detectOnsetPCA(seqs_v_class_map, onsetAll, classes=5, channels=[66], baselin
         np.shape(X)
         pca = PCA(n_components=np.shape(X)[1])
         PC = pca.fit_transform(X)
-        #display(np.mean(PC[0:baselineEnd,0]))
+        #print(np.mean(PC[0:baselineEnd,0]))
         
         tmp = abs(PC[:,0]-np.mean(PC[0:baselineEnd,0]))
         
@@ -92,7 +92,7 @@ def detectOnsetPCA(seqs_v_class_map, onsetAll, classes=5, channels=[66], baselin
             plt.plot(tmp, label=str(i))
             plt.plot([onset, onset],[0, 1], label=str(i))
             plt.legend()
-    return onsetAll
+#     return onsetAll
 
 def plotMRCP(ME_db_norm, ch=[14, 27, 30, 31]):
     b, a = signal.butter(3, 0.4, 'lp')
