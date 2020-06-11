@@ -19,6 +19,10 @@ share/
 *.bz2
 *.pickle
 
+# Pycharm
+*.idea
+.idea/
+
 # Distribution / packaging
 .Python
 build/

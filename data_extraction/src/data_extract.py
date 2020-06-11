@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-import numpy as np
-import time
-from data_extract_utils import *
-from channel_maps import *
 import multiprocessing
 import os
+
+from src.data_extract_utils import *
 
 
 def get_all_files(dir):
@@ -57,8 +55,6 @@ def process_file(fname, onlyME=True):
     for l in rejected_trials:
         rejected_trials_map[l[0]][l[1]] = 1
 
-    # CLM = channel_loc_map()
-    # seqs_v_class_map = data_1D_to_2D(seqs_v_class_map, 9, 9, CLM)
     pickle_data(seqs_v_class_map, seq_v_class_fname)
     pickle_data(rejected_trials_map, reject_trials_fname)
     pickle_data(noneeg_seqs_v_class_map, noneeg_seqs_v_class_fname)
@@ -68,7 +64,7 @@ def process_file(fname, onlyME=True):
 
 database_dir = "/home/sweet/1-workdir/eeg001-2017/"
 filelist = get_all_files(database_dir)
-MAX_NPROCESS = multiprocessing.cpu_count()//2
+MAX_NPROCESS = multiprocessing.cpu_count() // 2
 
 if __name__ == "__main__":
     print("There are a total of %d files in %s\n" % (len(filelist), database_dir))

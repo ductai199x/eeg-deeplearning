@@ -1,13 +1,13 @@
-import numpy as np
-from scipy import signal
-import biosig
-from biosig import HDR_TYPE
-from data_preprocess import *
-
-import time
-import pickle
 import bz2
+import pickle
 import sys
+import time
+
+from scipy import signal
+
+import src.biosig as biosig
+from src.biosig import HDR_TYPE
+from src.data_preprocess import *
 
 # map event type to event label
 # class 1: 0x600 = 1536 (elbow flexion)
@@ -69,7 +69,7 @@ def segregate_data_into_classes(HDR, data):
         if code == event_hit + 32768:
             end_frame = HDR.EVENT.POS[i]
             seqs_v_class_map[event_map[event_hit]].append(
-                signal_processing(data[start_frame:end_frame+1, 0:64]))
+                signal_processing(data[start_frame:end_frame + 1, 0:64]))
             event_hit = 0
 
     # print("Finished segregating data into classes in %f s\n" % (time.time()-t1))
@@ -97,7 +97,7 @@ def segregate_noneeg_data_into_classes(HDR, data):
         if code == event_hit + 32768:
             end_frame = HDR.EVENT.POS[i]
             seqs_v_class_map[event_map[event_hit]].append(
-                signal_processing(data[start_frame:end_frame+1, 64:]))
+                signal_processing(data[start_frame:end_frame + 1, 64:]))
             event_hit = 0
 
     # print("Finished segregating data into classes in %f s\n" % (time.time()-t1))
@@ -105,28 +105,22 @@ def segregate_noneeg_data_into_classes(HDR, data):
     return seqs_v_class_map
 
 
-from scipy.signal import butter, lfilter
-
 def butter_bandpass(lowcut, highcut, fs, order=5):
     nyq = 0.5 * fs
     low = lowcut / nyq
     high = highcut / nyq
-    b, a = butter(order, [low, high], btype='band')
+    b, a = signal.butter(order, [low, high], btype='band')
     return b, a
 
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = lfilter(b, a, data)
+    y = signal.lfilter(b, a, data)
     return y
-
 
 
 def signal_processing(data):
     data = signal.decimate(data, 4, 5, axis=0)
-    # data = butter_bandpass_filter(data, 30, 100, 256, 10)
-    
-    # data = (data-np.min(data, axis=0))/(np.max(data, axis=0) - np.min(data, axis=0))
 
     return data
 
@@ -138,7 +132,7 @@ def pickle_data(data, f_name, is_compress=False):
     i_str = pickle.dumps(data)
     if is_compress:
         i_str = bz2.compress(i_str)
-    f_size = sys.getsizeof(i_str)/1048576
+    f_size = sys.getsizeof(i_str) / 1048576
     f.write(i_str)
     f.close()
 
@@ -146,10 +140,10 @@ def pickle_data(data, f_name, is_compress=False):
 def reject_trials_from_map(seqs_v_class_map):
     # set parameters
     nBins = 20
-    threshold = 5        # in standard deviation
-    thresholdSig = 200   # in uV
+    threshold = 5  # in standard deviation
+    thresholdSig = 200  # in uV
     copyLib = True
-    EOG_Chann = [61,62,63]
+    EOG_Chann = [61, 62, 63]
 
     rejChanProb = np.array([[]])
     rejChanKurt = np.array([[]])
@@ -178,18 +172,18 @@ def reject_trials_from_map(seqs_v_class_map):
         print("Not successful in mark artifact kurtosis")
 
     # concatenate the index of the rejected channels
-    rejChan = np.zeros((1,3),dtype=int)
-    rejChan = np.concatenate((rejChan, rejChanProb), axis=0) if np.size(rejChanProb)>1 else rejChan
-    rejChan = np.concatenate((rejChan, rejChanKurt), axis=0) if np.size(rejChanKurt)>1 else rejChan
-    rejChan = np.concatenate((rejChan, rejChanThresh), axis=0) if np.size(rejChanThresh)>1 else rejChan
+    rejChan = np.zeros((1, 3), dtype=int)
+    rejChan = np.concatenate((rejChan, rejChanProb), axis=0) if np.size(rejChanProb) > 1 else rejChan
+    rejChan = np.concatenate((rejChan, rejChanKurt), axis=0) if np.size(rejChanKurt) > 1 else rejChan
+    rejChan = np.concatenate((rejChan, rejChanThresh), axis=0) if np.size(rejChanThresh) > 1 else rejChan
     rejChan = np.delete(rejChan, (0), axis=0)
 
     # get the trials that should be rejected because the EOG detected eye movement
-    rejTrial = np.zeros((1,3),dtype=int)
+    rejTrial = np.zeros((1, 3), dtype=int)
     c = []
     for i in range(0, np.shape(rejChan)[0]):
-        if rejChan[i,2] in EOG_Chann:
-            rejTrial = np.append(rejTrial, [rejChan[i,:]], axis=0)
+        if rejChan[i, 2] in EOG_Chann:
+            rejTrial = np.append(rejTrial, [rejChan[i, :]], axis=0)
 
     rejTrial = np.delete(rejTrial, (0), axis=0)
 
