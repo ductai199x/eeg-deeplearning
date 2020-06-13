@@ -1,11 +1,14 @@
 # Deep learning with EEG
 
-1. [Deep learning with EEG](#deep-learning-with-eeg)
-2. [Introduction](#introduction)
-3. [Papers](#papers)
-4. [Dataset](#dataset)
-5. [Data Extraction](#data-extraction)
-6. [Neural Network](#neural-network)
+- [Deep learning with EEG](#deep-learning-with-eeg)
+- [Introduction](#introduction)
+- [Papers](#papers)
+- [Dataset](#dataset)
+- [Data Extraction and Preliminary Data Processing](#data-extraction-and-preliminary-data-processing)
+- [Post-preliminary Data Processing](#post-preliminary-data-processing)
+- [Neural Network](#neural-network)
+- [Saliency Mapping](#saliency-mapping)
+- [Results](#results)
 
 # Introduction
 
@@ -14,8 +17,10 @@ EEG and Deep Learning as a part of developing a Brain-Computer Interface (BCI).
 
 # Papers
 
-1. Upper limb movements can be decoded from the time-domain of low-frequency EEG by Ofner et. al (August 2017)
-2. Cascade and Parallel Convolutional Recurrent Neural Networks on EEG-Based Intention Recognition for Brain Computer Interface by Zhang et. al (2018)
+1. Upper limb movements can be decoded from the time-domain of low-frequency EEG
+   by Ofner et. al (August 2017)
+2. Cascade and Parallel Convolutional Recurrent Neural Networks on EEG-Based
+   Intention Recognition for Brain Computer Interface by Zhang et. al (2018)
 
 # Dataset
 
@@ -23,29 +28,91 @@ The dataset used come from the paper: _Upper limb movements can be decoded from
 the time-domain of low-frequency EEG_ by Ofner et. al (August 2017), and it's
 available at: http://bnci-horizon-2020.eu/database/data-sets (dataset #001-2017)
 
-It's description is also available at: http://bnci-horizon-2020.eu/database/data-sets/001-2017/dataset_description.pdf
+It's description is also available at:
+http://bnci-horizon-2020.eu/database/data-sets/001-2017/dataset_description.pdf
 
-# Data Extraction
+# Data Extraction and Preliminary Data Processing
 
-The data extraction code is located in the `data_extraction/src` folder. You can run the code by:
+The data extraction code is located in the `data_extraction/src` folder. You can
+run the code by:
 
-1. Create a virtual environment using `virtualenv` under `data_extraction/`: `virtualenv data_extraction/ --python=python3`
+1. Create a virtual environment using `virtualenv` under `data_extraction/`:
+   `virtualenv data_extraction/ --python=python3`
 2. Change directory to the `data_extraction` folder: `cd data_extraction`
 3. Activate the virtualenv: `source bin/activate` on Linux
 4. Install necessary dependencies: `pip install -r requirements.txt`
 5. Change directory to the `src` folder: `cd src`
-6. Edit the path to your dataset folder (`database_dir = "/home/sweet/1-workdir/eeg001-2017/"`). Run the data_extract script: `python data_extract.py`. (lots of data processing, so expect your computer working at 100%)
+6. Edit the path to your dataset folder
+   (`database_dir = "/home/sweet/1-workdir/eeg001-2017/"`) to your own path. Run
+   the data_extract script: `python data_extract.py`. (lots of data processing,
+   so expect your computer working at 100%)
 7. Run the create_database script: `python create_databases.py`
 
-The final step above will create 2 files: `prelim_ME_db.pickle` and `prelim_MI_db.pickle`. Each dataset will contain of a python map with 7 keys representing 7 classes (6 movement classes + 1 rest class). The value at each key is a python list, where each element in the list is a trial of that class. Each trial is a M x N data mesh, where the data has been mapped from 1D to 2D using the locations of the electrodes on the head.
+The final step above will create a few files:
+
+1. `prelim_ME_db_128.pickle`: [^1] *The database of EEG signals from 64 channels*
+2. `noneeg_ME_db_128.pickle`: *The database of nonEEG signals (movement sensors)*
+3. `reject_ME_db_128.pickle`: *The database of contain trial rejection information*
+
+The current state of the code will only deal with the Motor Execution (ME)
+dataset. For the Motor Imagination (MI) dataset, the MI's databases can be
+created in very similar manner.
+
+`prelim_ME_db_128.pickle` will contain of a python map with 7 keys representing
+7 classes (6 movement classes + 1 rest class). The value at each key is a python
+list, where each element in the list is a trial of that class. Each trial is a
+timesteps x 64 matrix (64 is the number of available EEG channels).
+
+[^1]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.
+
+# Post-preliminary Data Processing
+
+The post-preliminary data processing is also located in the
+`data_extraction/src` folder. You can run the code by:
+
+1. Activate the virtualenv used in the previous section
+2. Run the post_prelim_processing script: `python post_prelim_processing.py`
+
+Running this script will produce a single file called `mesh_ME_db_128.pickle`, a
+python map with 7 keys representing 7 classes (6 movement classes + 1 rest
+class). The value at each key is a python list, where each element in the list
+is a trial of that class. Each trial is a timesteps x 9 x 9 matrix.
+
+The post-preliminary data processing steps include, but not limited to:
+- 1st-order baseline subtraction
+- NaNs/Infs trial rejection
+- Reject trials due to joint probability
+- Reject trials due to Kurtosis
+- Movement onset detection and alignment
+- Converting 1D data to 2D mesh base on the location of the actual electrodes. 
 
 # Neural Network
 
-The neural network constructed in this project comes from the paper: _Cascade and Parallel Convolutional Recurrent Neural Networks on EEG-Based Intention Recognition for Brain Computer Interface_ by Zhang et. al (2018).
-The neural network code is located in the `neural_network/src` folder. You can run the code by:
+The neural network constructed in this project comes from the paper: _Cascade
+and Parallel Convolutional Recurrent Neural Networks on EEG-Based Intention
+Recognition for Brain Computer Interface_ by Zhang et. al (2018). The neural
+network code is located in the `neural_network/src` folder. You can run the code
+by:
 
-1. Create a virtual environment using `virtualenv` under `neural_network/`: `virtualenv neural_network/ --python=python3`
+1. Create a virtual environment using `virtualenv` under `neural_network/`:
+   `virtualenv neural_network/ --python=python3`
 2. Change directory to the `neural_network` folder: `cd neural_network`
 3. Activate the virtualenv: `source bin/activate` on Linux
 4. Install necessary dependencies: `pip install -r requirements.txt`
-... to be completed
+5. Open Jupyter Notebook: `jupyter notebook`
+6. Open the Jupyter Notebook named `neural_network.ipynb`
+7. Change the `db_dir` variable to indicate the location of the `mesh_ME_db_128.pickle` file generated in the above section.
+8. Adjust these variables: `IS_RUNNING_PAIRWISE`, `IS_SAVE_TRAINING_HISTORY`, and `GEN_PICKLE_INPUT_TARGET` to your own settings.
+9. Run the notebook.
+
+The notebook will run the code which does all 7 class classfication and report the accuracies after 50 epochs (the number of epochs can be adjusted in the variable `n_epochs`). 
+
+Finally, the confusion matrix available in our report are generated using the `confusion_matrix.ipynb` notebook.
+
+# Saliency Mapping
+
+To be written...
+
+# Results
+
+Our results are shown in the paper attached in the file `EEG_BCI_CNN_LSTM.pdf`. The paper includes all of our methods, data processing pipelines and final results.

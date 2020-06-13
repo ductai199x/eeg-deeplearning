@@ -48,21 +48,21 @@ while len(filelist) > 0:
 print("Complete loading and merging maps in %f s" % (time.time() - t1))
 
 t1 = time.time()
-with open("prelim_ME_db.pickle", "wb") as db, open("reject_ME_db.pickle", 'wb') as rt, open("noneeg_ME_db.pickle",
+with open("prelim_ME_db_128.pickle", "wb") as db, open("reject_ME_db_128.pickle", 'wb') as rt, open("noneeg_ME_db_128.pickle",
                                                                                             "wb") as ne:
     i_str = pickle.dumps(prelim_ME_db)
     f_size = sys.getsizeof(i_str) / 1048576
-    print("Finished writing %.2f MB of data to prelim_ME_db.pickle in %f s" % (f_size, time.time() - t1))
+    print("Finished writing %.2f MB of data to prelim_ME_db_128.pickle in %f s" % (f_size, time.time() - t1))
     db.write(i_str)
 
     i_str = pickle.dumps(reject_ME_db)
     f_size = sys.getsizeof(i_str) / 1048576
-    print("Finished writing %.2f MB of data to reject_ME_db.pickle in %f s" % (f_size, time.time() - t1))
+    print("Finished writing %.2f MB of data to reject_ME_db_128.pickle in %f s" % (f_size, time.time() - t1))
     rt.write(i_str)
 
     i_str = pickle.dumps(noneeg_ME_db)
     f_size = sys.getsizeof(i_str) / 1048576
-    print("Finished writing %.2f MB of data to noneeg_ME_db.pickle in %f s" % (f_size, time.time() - t1))
+    print("Finished writing %.2f MB of data to noneeg_ME_db_128.pickle in %f s" % (f_size, time.time() - t1))
     ne.write(i_str)
 
 # t1 = time.time()
