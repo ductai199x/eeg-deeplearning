@@ -10,6 +10,7 @@
 - [Neural Network](#neural-network)
 - [Saliency Mapping](#saliency-mapping)
 - [Results](#results)
+- [Footnotes](#footnotes)
 
 # Introduction
 
@@ -55,7 +56,7 @@ run the code by:
 
 The final step above will create a few files:
 
-1. `prelim_ME_db_128.pickle`: [^128hz] _The database of EEG signals from 64
+1. `prelim_ME_db_128.pickle`: <sup>[1](#128hz)</sup> _The database of EEG signals from 64
    channels_
 2. `noneeg_ME_db_128.pickle`: _The database of nonEEG signals (movement
    sensors)_
@@ -71,8 +72,6 @@ created in very similar manner.
 list, where each element in the list is a trial of that class. Each trial is a
 timesteps x 64 matrix (64 is the number of available EEG channels).
 
-[^128hz]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.
-
 # Post-preliminary Data Processing
 
 The post-preliminary data processing is also located in the
@@ -82,7 +81,7 @@ The post-preliminary data processing is also located in the
 2. Run the post_prelim_processing script: `python post_prelim_processing.py`
 
 Running this script will produce a single file called
-`mesh_ME_db_128.pickle`[^link], a python map with 7 keys representing 7 classes
+`mesh_ME_db_128.pickle`<sup>[2](#link)</sup>, a python map with 7 keys representing 7 classes
 (6 movement classes + 1 rest class). The value at each key is a python list,
 where each element in the list is a trial of that class. Each trial is a
 timesteps x 9 x 9 matrix.
@@ -95,8 +94,6 @@ The post-preliminary data processing steps include, but not limited to:
 - Reject trials due to Kurtosis
 - Movement onset detection and alignment
 - Converting 1D data to 2D mesh base on the location of the actual electrodes.
-
-[^link]: This database file is also available at https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu Please cite our work if you decided to use this database.
 
 # Neural Network
 
@@ -135,3 +132,9 @@ To be written...
 Our results are shown in the paper attached in the file `EEG_BCI_CNN_LSTM.pdf`.
 The paper includes all of our methods, data processing pipelines and final
 results.
+
+# Footnotes
+
+<a name="128hz">1</a>: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.
+
+<a name="link">2</a>: This database file is also available at https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu Please cite our work if you decided to use this database.

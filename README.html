@@ -36,6 +36,7 @@
 <li><a href="#neural-network">Neural Network</a></li>
 <li><a href="#saliency-mapping">Saliency Mapping</a></li>
 <li><a href="#results">Results</a></li>
+<li><a href="#footnotes">Footnotes</a></li>
 </ul>
 <h1 id="introduction">Introduction</h1>
 <p>This repository is dedicated to the attempt to classify human intentions using
@@ -73,7 +74,7 @@ so expect your computer working at 100%)</li>
 </ol>
 <p>The final step above will create a few files:</p>
 <ol>
-<li><code>prelim_ME_db_128.pickle</code>: [^128hz] <em>The database of EEG signals from 64
+<li><code>prelim_ME_db_128.pickle</code>: <sup><a href="#128hz">1</a></sup> <em>The database of EEG signals from 64
 channels</em></li>
 <li><code>noneeg_ME_db_128.pickle</code>: <em>The database of nonEEG signals (movement
 sensors)</em></li>
@@ -87,7 +88,6 @@ created in very similar manner.</p>
 7 classes (6 movement classes + 1 rest class). The value at each key is a python
 list, where each element in the list is a trial of that class. Each trial is a
 timesteps x 64 matrix (64 is the number of available EEG channels).</p>
-<p>[^128hz]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.</p>
 <h1 id="post-preliminary-data-processing">Post-preliminary Data Processing</h1>
 <p>The post-preliminary data processing is also located in the
 <code>data_extraction/src</code> folder. You can run the code by:</p>
@@ -96,7 +96,7 @@ timesteps x 64 matrix (64 is the number of available EEG channels).</p>
 <li>Run the post_prelim_processing script: <code>python post_prelim_processing.py</code></li>
 </ol>
 <p>Running this script will produce a single file called
-<code>mesh_ME_db_128.pickle</code>[^link], a python map with 7 keys representing 7 classes
+<code>mesh_ME_db_128.pickle</code><sup><a href="#link">2</a></sup>, a python map with 7 keys representing 7 classes
 (6 movement classes + 1 rest class). The value at each key is a python list,
 where each element in the list is a trial of that class. Each trial is a
 timesteps x 9 x 9 matrix.</p>
@@ -109,7 +109,6 @@ timesteps x 9 x 9 matrix.</p>
 <li>Movement onset detection and alignment</li>
 <li>Converting 1D data to 2D mesh base on the location of the actual electrodes.</li>
 </ul>
-<p>[^link]: This database file is also available at <a href="https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu">https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu</a> Please cite our work if you decided to use this database.</p>
 <h1 id="neural-network">Neural Network</h1>
 <p>The neural network constructed in this project comes from the paper: <em>Cascade
 and Parallel Convolutional Recurrent Neural Networks on EEG-Based Intention
@@ -141,6 +140,9 @@ variable <code>n_epochs</code>).</p>
 <p>Our results are shown in the paper attached in the file <code>EEG_BCI_CNN_LSTM.pdf</code>.
 The paper includes all of our methods, data processing pipelines and final
 results.</p>
+<h1 id="footnotes">Footnotes</h1>
+<p><a name="128hz">1</a>: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.</p>
+<p><a name="link">2</a>: This database file is also available at <a href="https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu">https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu</a> Please cite our work if you decided to use this database.</p>
 
     </body>
     </html>
