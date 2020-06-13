@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Deep learning with EEG</title>
+        <style>
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+        
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        <style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.7;
+            }
+        </style>
+        
+        
+        
+    </head>
+    <body class="vscode-light">
+        <h1 id="deep-learning-with-eeg">Deep learning with EEG</h1>
+<ul>
+<li><a href="#deep-learning-with-eeg">Deep learning with EEG</a></li>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#authors">Authors</a></li>
+<li><a href="#papers">Papers</a></li>
+<li><a href="#dataset">Dataset</a></li>
+<li><a href="#data-extraction-and-preliminary-data-processing">Data Extraction and Preliminary Data Processing</a></li>
+<li><a href="#post-preliminary-data-processing">Post-preliminary Data Processing</a></li>
+<li><a href="#neural-network">Neural Network</a></li>
+<li><a href="#saliency-mapping">Saliency Mapping</a></li>
+<li><a href="#results">Results</a></li>
+</ul>
+<h1 id="introduction">Introduction</h1>
+<p>This repository is dedicated to the attempt to classify human intentions using
+EEG and Deep Learning as a part of developing a Brain-Computer Interface (BCI).</p>
+<h1 id="authors">Authors</h1>
+<p>Tai Nguyen, Liangyu Tao, Cherelle Conors</p>
+<h1 id="papers">Papers</h1>
+<ol>
+<li>Upper limb movements can be decoded from the time-domain of low-frequency EEG
+by Ofner et. al (August 2017)</li>
+<li>Cascade and Parallel Convolutional Recurrent Neural Networks on EEG-Based
+Intention Recognition for Brain Computer Interface by Zhang et. al (2018)</li>
+</ol>
+<h1 id="dataset">Dataset</h1>
+<p>The dataset used come from the paper: <em>Upper limb movements can be decoded from
+the time-domain of low-frequency EEG</em> by Ofner et. al (August 2017), and it's
+available at: <a href="http://bnci-horizon-2020.eu/database/data-sets">http://bnci-horizon-2020.eu/database/data-sets</a> (dataset #001-2017)</p>
+<p>It's description is also available at:
+<a href="http://bnci-horizon-2020.eu/database/data-sets/001-2017/dataset_description.pdf">http://bnci-horizon-2020.eu/database/data-sets/001-2017/dataset_description.pdf</a></p>
+<h1 id="data-extraction-and-preliminary-data-processing">Data Extraction and Preliminary Data Processing</h1>
+<p>The data extraction code is located in the <code>data_extraction/src</code> folder. You can
+run the code by:</p>
+<ol>
+<li>Create a virtual environment using <code>virtualenv</code> under <code>data_extraction/</code>:
+<code>virtualenv data_extraction/ --python=python3</code></li>
+<li>Change directory to the <code>data_extraction</code> folder: <code>cd data_extraction</code></li>
+<li>Activate the virtualenv: <code>source bin/activate</code> on Linux</li>
+<li>Install necessary dependencies: <code>pip install -r requirements.txt</code></li>
+<li>Change directory to the <code>src</code> folder: <code>cd src</code></li>
+<li>Edit the path to your dataset folder
+(<code>database_dir = &quot;/home/sweet/1-workdir/eeg001-2017/&quot;</code>) to your own path. Run
+the data_extract script: <code>python data_extract.py</code>. (lots of data processing,
+so expect your computer working at 100%)</li>
+<li>Run the create_database script: <code>python create_databases.py</code></li>
+</ol>
+<p>The final step above will create a few files:</p>
+<ol>
+<li><code>prelim_ME_db_128.pickle</code>: [^128hz] <em>The database of EEG signals from 64
+channels</em></li>
+<li><code>noneeg_ME_db_128.pickle</code>: <em>The database of nonEEG signals (movement
+sensors)</em></li>
+<li><code>reject_ME_db_128.pickle</code>: <em>The database of contain trial rejection
+information</em></li>
+</ol>
+<p>The current state of the code will only deal with the Motor Execution (ME)
+dataset. For the Motor Imagination (MI) dataset, the MI's databases can be
+created in very similar manner.</p>
+<p><code>prelim_ME_db_128.pickle</code> will contain of a python map with 7 keys representing
+7 classes (6 movement classes + 1 rest class). The value at each key is a python
+list, where each element in the list is a trial of that class. Each trial is a
+timesteps x 64 matrix (64 is the number of available EEG channels).</p>
+<p>[^128hz]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.</p>
+<h1 id="post-preliminary-data-processing">Post-preliminary Data Processing</h1>
+<p>The post-preliminary data processing is also located in the
+<code>data_extraction/src</code> folder. You can run the code by:</p>
+<ol>
+<li>Activate the virtualenv used in the previous section</li>
+<li>Run the post_prelim_processing script: <code>python post_prelim_processing.py</code></li>
+</ol>
+<p>Running this script will produce a single file called
+<code>mesh_ME_db_128.pickle</code>[^link], a python map with 7 keys representing 7 classes
+(6 movement classes + 1 rest class). The value at each key is a python list,
+where each element in the list is a trial of that class. Each trial is a
+timesteps x 9 x 9 matrix.</p>
+<p>The post-preliminary data processing steps include, but not limited to:</p>
+<ul>
+<li>1st-order baseline subtraction</li>
+<li>NaNs/Infs trial rejection</li>
+<li>Reject trials due to joint probability</li>
+<li>Reject trials due to Kurtosis</li>
+<li>Movement onset detection and alignment</li>
+<li>Converting 1D data to 2D mesh base on the location of the actual electrodes.</li>
+</ul>
+<p>[^link]: This database file is also available at <a href="https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu">https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu</a> Please cite our work if you decided to use this database.</p>
+<h1 id="neural-network">Neural Network</h1>
+<p>The neural network constructed in this project comes from the paper: <em>Cascade
+and Parallel Convolutional Recurrent Neural Networks on EEG-Based Intention
+Recognition for Brain Computer Interface</em> by Zhang et. al (2018). The neural
+network code is located in the <code>neural_network/src</code> folder. You can run the code
+by:</p>
+<ol>
+<li>Create a virtual environment using <code>virtualenv</code> under <code>neural_network/</code>:
+<code>virtualenv neural_network/ --python=python3</code></li>
+<li>Change directory to the <code>neural_network</code> folder: <code>cd neural_network</code></li>
+<li>Activate the virtualenv: <code>source bin/activate</code> on Linux</li>
+<li>Install necessary dependencies: <code>pip install -r requirements.txt</code></li>
+<li>Open Jupyter Notebook: <code>jupyter notebook</code></li>
+<li>Open the Jupyter Notebook named <code>neural_network.ipynb</code></li>
+<li>Change the <code>db_dir</code> variable to indicate the location of the
+<code>mesh_ME_db_128.pickle</code> file generated in the above section.</li>
+<li>Adjust these variables: <code>IS_RUNNING_PAIRWISE</code>, <code>IS_SAVE_TRAINING_HISTORY</code>,
+and <code>GEN_PICKLE_INPUT_TARGET</code> to your own settings.</li>
+<li>Run the notebook.</li>
+</ol>
+<p>The notebook will run the code which does all 7 class classfication and report
+the accuracies after 50 epochs (the number of epochs can be adjusted in the
+variable <code>n_epochs</code>).</p>
+<p>Finally, the confusion matrix available in our report are generated using the
+<code>confusion_matrix.ipynb</code> notebook.</p>
+<h1 id="saliency-mapping">Saliency Mapping</h1>
+<p>To be written...</p>
+<h1 id="results">Results</h1>
+<p>Our results are shown in the paper attached in the file <code>EEG_BCI_CNN_LSTM.pdf</code>.
+The paper includes all of our methods, data processing pipelines and final
+results.</p>
+
+    </body>
+    </html>

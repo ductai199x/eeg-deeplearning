@@ -2,6 +2,7 @@
 
 - [Deep learning with EEG](#deep-learning-with-eeg)
 - [Introduction](#introduction)
+- [Authors](#authors)
 - [Papers](#papers)
 - [Dataset](#dataset)
 - [Data Extraction and Preliminary Data Processing](#data-extraction-and-preliminary-data-processing)
@@ -14,6 +15,10 @@
 
 This repository is dedicated to the attempt to classify human intentions using
 EEG and Deep Learning as a part of developing a Brain-Computer Interface (BCI).
+
+# Authors
+
+Tai Nguyen, Liangyu Tao, Cherelle Conors
 
 # Papers
 
@@ -50,9 +55,12 @@ run the code by:
 
 The final step above will create a few files:
 
-1. `prelim_ME_db_128.pickle`: [^1] *The database of EEG signals from 64 channels*
-2. `noneeg_ME_db_128.pickle`: *The database of nonEEG signals (movement sensors)*
-3. `reject_ME_db_128.pickle`: *The database of contain trial rejection information*
+1. `prelim_ME_db_128.pickle`: [^128hz] _The database of EEG signals from 64
+   channels_
+2. `noneeg_ME_db_128.pickle`: _The database of nonEEG signals (movement
+   sensors)_
+3. `reject_ME_db_128.pickle`: _The database of contain trial rejection
+   information_
 
 The current state of the code will only deal with the Motor Execution (ME)
 dataset. For the Motor Imagination (MI) dataset, the MI's databases can be
@@ -63,7 +71,7 @@ created in very similar manner.
 list, where each element in the list is a trial of that class. Each trial is a
 timesteps x 64 matrix (64 is the number of available EEG channels).
 
-[^1]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.
+[^128hz]: 128 means 128Hz. The original dataset is 512Hz. We downsampled to 128Hz.
 
 # Post-preliminary Data Processing
 
@@ -73,18 +81,22 @@ The post-preliminary data processing is also located in the
 1. Activate the virtualenv used in the previous section
 2. Run the post_prelim_processing script: `python post_prelim_processing.py`
 
-Running this script will produce a single file called `mesh_ME_db_128.pickle`, a
-python map with 7 keys representing 7 classes (6 movement classes + 1 rest
-class). The value at each key is a python list, where each element in the list
-is a trial of that class. Each trial is a timesteps x 9 x 9 matrix.
+Running this script will produce a single file called
+`mesh_ME_db_128.pickle`[^link], a python map with 7 keys representing 7 classes
+(6 movement classes + 1 rest class). The value at each key is a python list,
+where each element in the list is a trial of that class. Each trial is a
+timesteps x 9 x 9 matrix.
 
 The post-preliminary data processing steps include, but not limited to:
+
 - 1st-order baseline subtraction
 - NaNs/Infs trial rejection
 - Reject trials due to joint probability
 - Reject trials due to Kurtosis
 - Movement onset detection and alignment
-- Converting 1D data to 2D mesh base on the location of the actual electrodes. 
+- Converting 1D data to 2D mesh base on the location of the actual electrodes.
+
+[^link]: This database file is also available at https://drexel0-my.sharepoint.com/:u:/g/personal/tdn47_drexel_edu/EdobbPf6Qm5Cpcr-36cQz_EByAIyC44n25WX0-WuiujCog?e=1ao3bu Please cite our work if you decided to use this database.
 
 # Neural Network
 
@@ -101,13 +113,18 @@ by:
 4. Install necessary dependencies: `pip install -r requirements.txt`
 5. Open Jupyter Notebook: `jupyter notebook`
 6. Open the Jupyter Notebook named `neural_network.ipynb`
-7. Change the `db_dir` variable to indicate the location of the `mesh_ME_db_128.pickle` file generated in the above section.
-8. Adjust these variables: `IS_RUNNING_PAIRWISE`, `IS_SAVE_TRAINING_HISTORY`, and `GEN_PICKLE_INPUT_TARGET` to your own settings.
+7. Change the `db_dir` variable to indicate the location of the
+   `mesh_ME_db_128.pickle` file generated in the above section.
+8. Adjust these variables: `IS_RUNNING_PAIRWISE`, `IS_SAVE_TRAINING_HISTORY`,
+   and `GEN_PICKLE_INPUT_TARGET` to your own settings.
 9. Run the notebook.
 
-The notebook will run the code which does all 7 class classfication and report the accuracies after 50 epochs (the number of epochs can be adjusted in the variable `n_epochs`). 
+The notebook will run the code which does all 7 class classfication and report
+the accuracies after 50 epochs (the number of epochs can be adjusted in the
+variable `n_epochs`).
 
-Finally, the confusion matrix available in our report are generated using the `confusion_matrix.ipynb` notebook.
+Finally, the confusion matrix available in our report are generated using the
+`confusion_matrix.ipynb` notebook.
 
 # Saliency Mapping
 
@@ -115,4 +132,6 @@ To be written...
 
 # Results
 
-Our results are shown in the paper attached in the file `EEG_BCI_CNN_LSTM.pdf`. The paper includes all of our methods, data processing pipelines and final results.
+Our results are shown in the paper attached in the file `EEG_BCI_CNN_LSTM.pdf`.
+The paper includes all of our methods, data processing pipelines and final
+results.
